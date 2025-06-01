@@ -1,0 +1,141 @@
+body {
+    font-family: 'Roboto', sans-serif; /* YouTubeのフォントを意識 */
+    margin: 0;
+    background-color: #f9f9f9;
+    color: #030303;
+}
+
+header {
+    background-color: #ffffff;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+header h1 {
+    margin: 0;
+    color: #ff0000; /* YouTubeレッド */
+}
+
+.search-container {
+    display: flex;
+}
+
+#searchInput {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 2px 0 0 2px;
+    width: 300px;
+    font-size: 16px;
+}
+
+#searchButton {
+    padding: 8px 15px;
+    background-color: #f8f8f8;
+    border: 1px solid #ccc;
+    border-left: none;
+    border-radius: 0 2px 2px 0;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#searchButton:hover {
+    background-color: #eee;
+}
+
+main {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+#videoPlayerContainer {
+    flex: 2; /* プレーヤーエリアを広く */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#videoPlayer {
+    width: 100%;
+    height: auto; /* アスペクト比を維持 */
+    background-color: #000;
+}
+
+#qualitySelector {
+    margin: 10px 0;
+}
+
+#videoTitle {
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+#commentsSection {
+    margin-top: 30px;
+}
+
+.comment-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+#searchResults {
+    flex: 1; /* 検索結果エリア */
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#videoList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#videoList li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 10px;
+}
+
+#videoList li img {
+    width: 120px;
+    height: auto;
+    border-radius: 4px;
+}
+
+#videoList li a {
+    text-decoration: none;
+    color: #030303;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#videoList li a:hover {
+    color: #ff0000;
+}
+
+#videoList li p {
+    font-size: 14px;
+    color: #606060;
+    margin: 0;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #606060;
+    background-color: #f0f0f0;
+    margin-top: 20px;
+}

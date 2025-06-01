@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invidious YouTube Lite</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Invidious YouTube Lite</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="動画を検索...">
+            <button id="search-button">検索</button>
+        </div>
+    </header>
+
+    <main>
+        <section id="video-detail-container" class="video-detail-hidden">
+            <button id="close-detail-button">閉じる</button>
+        </section>
+
+        <section id="results-container">
+            <p class="initial-message">検索ボックスにキーワードを入力して動画を検索してください。</p>
+            </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Invidious YouTube Lite. Powered by Invidious API.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

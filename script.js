@@ -1,17 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM要素の参照を確実に取得
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const resultsContainer = document.getElementById('results-container');
-    const initialMessage = document.getElementById('initial-message'); // 新しいID
-    const videoDetailContainer = document.getElementById('video-detail-container');
-    const closeVideoDetailButton = document.getElementById('close-video-detail-button'); // ID変更
+    const initialMessage = document.getElementById('initial-message'); // 初期メッセージ要素
 
-    // Video Detail Elements
-    const detailTitle = document.getElementById('detail-title');
-    const detailIframe = document.getElementById('detail-iframe');
-    const detailAuthor = document.getElementById('detail-author');
-    const detailViews = document.getElementById('detail-views');
-    const detailDescription = document.getElementById('detail-description');
+    const videoDetailContainer = document.getElementById('video-detail-container');
+    const closeVideoDetailButton = document.getElementById('close-video-detail-button');
+
+    // Video Detail Elements (これらの要素は動画詳細がロードされるたびにinnerHTMLで再生成されるため、
+    // 親コンテナのvideoDetailContainerを操作する方が確実です。)
 
     // Channel Detail Modal Elements
     const channelDetailModal = document.getElementById('channel-detail-modal');
@@ -24,23 +22,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // CORSに対応しているInvidiousインスタンスのURLを選択してください
     // 動作しない場合は、https://docs.invidious.io/instances/ でCORSが緑色のインスタンスを試してください。
-    const INVIDIOUS_INSTANCE_URL = 'https://lekker.gay'; // 例: 動作確認済みの場合が多い
+    // いくつか試して、最も安定しているものを選んでください。
+    const INVIDIOUS_INSTANCE_URL = 'https://lekker.gay'; // 動作報告が多いインスタンス
+    // const INVIDIOUS_INSTANCE_URL = 'https://invidious.nameless.ws';
+    // const INVIDIOUS_INSTANCE_URL = '';
+    // const INVIDIOUS_INSTANCE_URL = 'https://inv.vern.cc';
 
-    searchButton.addEventListener('click', performSearch);
-    searchInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            performSearch();
-        }
-    });
-    closeVideoDetailButton.addEventListener('click', hideVideoDetail);
-    closeChannelDetailButton.addEventListener('click', hideChannelDetail);
-    channelDetailModal.addEventListener('click', (event) => {
-        // モーダルの背景をクリックした場合に閉じる
-        if (event.target === channelDetailModal) {
-            hideChannelDetail();
-        }
-    });
 
+    // イベントリスナーの設定
+    if (searchButton) { // 要素が存在するか確認
+        searchButton.addEventListener('click', performSearch);
+    }
+    if (searchInput) { // 要素が存在するか確認
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+    if (closeVideoDetailButton) {
+        closeVideoDetailButton.addEventListener('click', hideVideoDetail);
+    }
+    if (closeChannelDetailButton) {
+        closeChannelDetailButton.addEventListener('click', hideChannelDetail);
+    }
+    if (channelDetailModal) {
+        channelDetailModal.addEventListener('click', (event) => {
+            // モーダルの背景をクリックした場合に閉じる
+            if (event.target === channelDetailModal) {
+                hideChannelDetail();
+            }
+        });
+    }
 
     async function performSearch() {
         const query = searchInput.value.trim();
@@ -172,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             // クローズボタンにイベントリスナーを再設定
+            // 新しく生成された要素なので、ここでイベントリスナーを再度追加
             document.getElementById('close-video-detail-button').addEventListener('click', hideVideoDetail);
 
         } catch (error) {
@@ -201,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
         hideVideoDetail();
         resultsContainer.style.display = 'none';
 
-
         try {
             const response = await fetch(`${INVIDIOUS_INSTANCE_URL}/api/v1/channels/${channelId}`);
             if (!response.ok) {
@@ -209,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const channel = await response.json();
 
+            // チャンネル登録者数と総再生回数のフォーマット
             const subscriberCountFormatted = channel.subCount ? new Intl.NumberFormat('ja-JP').format(channel.subCount) : '非公開';
             const totalViewsFormatted = channel.viewCount ? new Intl.NumberFormat('ja-JP').format(channel.viewCount) : '非公開';
 

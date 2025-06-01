@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // CORSに対応しているInvidiousインスタンスのURLを選択してください
     // 複数の選択肢をコメントアウトで示します。動作しない場合は別のインスタンスを試してください。
     // https://docs.invidious.io/instances/ にて最新のインスタンスを確認できます。
-    const INVIDIOUS_INSTANCE_URL = 'https://invidious.nameless.ws'; // 例: 動作確認済みの場合が多い
+    const INVIDIOUS_INSTANCE_URL = 'https://lekker.gay'; // 例: 動作確認済みの場合が多い
     // const INVIDIOUS_INSTANCE_URL = 'https://inv.tux.pizza';
     // const INVIDIOUS_INSTANCE_URL = 'https://invidious.snopyta.org'; // CORSが動作しない可能性あり
 

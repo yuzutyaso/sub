@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUBEFLOW - 簡易YouTube</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>TUBEFLOW</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="動画を検索...">
+            <button id="searchButton">検索</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="videoPlayerContainer">
+            <video id="videoPlayer" controls width="100%"></video>
+            <div id="qualitySelector">
+                </div>
+            <h2 id="videoTitle"></h2>
+            <div id="commentsSection">
+                <h3>コメント</h3>
+                <div id="commentList">
+                    </div>
+            </div>
+        </div>
+
+        <div id="searchResults">
+            <h2>検索結果</h2>
+            <ul id="videoList">
+                </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 TUBEFLOW</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

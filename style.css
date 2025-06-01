@@ -1,0 +1,206 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+header {
+    background-color: #c4302b; /* YouTube Red */
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+.search-container {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+#search-input {
+    padding: 0.8rem;
+    width: 60%;
+    max-width: 500px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+#search-button {
+    padding: 0.8rem 1.5rem;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#search-button:hover {
+    background-color: #555;
+}
+
+main {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+#results-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.initial-message {
+    grid-column: 1 / -1; /* グリッド全体に広がる */
+    text-align: center;
+    color: #666;
+    font-size: 1.1rem;
+    padding: 50px 0;
+}
+
+.video-card {
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+}
+
+.video-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.video-card h3 {
+    font-size: 1.2rem;
+    margin: 10px 15px 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.video-card p {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 15px 15px;
+}
+
+#video-detail-container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    display: none; /* 初期状態では非表示 */
+    position: relative;
+}
+
+#video-detail-container.video-detail-visible {
+    display: block; /* 表示時に切り替えるクラス */
+}
+
+#video-detail-container h2 {
+    margin-top: 0;
+    font-size: 2rem;
+    color: #c4302b;
+}
+
+#video-detail-container iframe {
+    width: 100%;
+    max-width: 800px; /* プレーヤーの最大幅 */
+    height: 450px; /* アスペクト比16:9を維持 */
+    display: block;
+    margin: 20px auto;
+    border: none;
+}
+
+#video-detail-container p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+#video-detail-container strong {
+    color: #333;
+}
+
+#video-detail-container .description {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    font-size: 1rem;
+    color: #555;
+    margin-top: 15px;
+}
+
+#close-detail-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #c4302b;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+#close-detail-button:hover {
+    background-color: #a0201c;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem 0;
+    background-color: #333;
+    color: white;
+    margin-top: 30px;
+    font-size: 0.9rem;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    #search-input {
+        width: 80%;
+    }
+
+    #results-container {
+        grid-template-columns: 1fr;
+    }
+
+    #video-detail-container iframe {
+        height: 250px;
+    }
+  }

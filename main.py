@@ -7,8 +7,6 @@ import os
 app = Flask(__name__)
 
 # ★★★ ここをあなたのInvidiousインスタンスURLに置き換えてください ★★★
-# https://lekker.gay が安定していることを確認してください。
-# もしVercelデプロイ後に動かない場合は、他の安定したインスタンスを試してください。
 INVIDIOUS_INSTANCE_URL = "https://lekker.gay" 
 
 def get_invidious_video_info(video_id: str):
@@ -74,10 +72,26 @@ def search():
     print(f"動画ID: {example_video_id} の情報を {INVIDIOUS_INSTANCE_URL} から取得中...")
     video_data = get_invidious_video_info(example_video_id)
 
-    # 埋め込み用Stream URLの取得 (Invidiousの/embed/パスを使用)
+    # ここから動画ストリームURLの取得ロジック
+    video_stream_url = ""
+    # Invidiousの/embed/パス（iframe用）
     embed_invidious_url = ""
     if video_data and video_data.get('videoId'):
         embed_invidious_url = f"{INVIDIOUS_INSTANCE_URL}/embed/{video_data.get('videoId')}"
+
+        # APIから直接再生可能な動画ストリームURLを探す
+        if 'format' in video_data and isinstance(video_data['format'], list):
+            # 優先: 720pのMP4
+            for fmt in video_data['format']:
+                if fmt.get('container') == 'mp4' and fmt.get('qualityLabel') == '720p' and 'url' in fmt:
+                    video_stream_url = fmt['url']
+                    break
+            # 720pがなければ、最初のMP4を試す
+            if not video_stream_url:
+                for fmt in video_data['format']:
+                    if fmt.get('container') == 'mp4' and 'url' in fmt:
+                        video_stream_url = fmt['url']
+                        break
 
     return render_template(
         'results.html',
@@ -85,9 +99,11 @@ def search():
         search_results=search_results,
         video_data=video_data,
         invidious_instance=INVIDIOUS_INSTANCE_URL,
-        embed_invidious_url=embed_invidious_url
+        embed_invidious_url=embed_invidious_url,
+        video_stream_url=video_stream_url # 新しく追加した変数
     )
 
 if __name__ == '__main__':
     # ローカル開発環境での実行
-    app.run(debug=True) # debug=True は開発時のみ推奨
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)

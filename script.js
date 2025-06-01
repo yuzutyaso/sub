@@ -2,15 +2,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
     const resultsContainer = document.getElementById('results-container');
-    const initialMessage = document.getElementById('initial-message');
+    const initialMessage = document.getElementById('initial-message'); // 新しいID
     const videoDetailContainer = document.getElementById('video-detail-container');
-    const closeDetailButton = document.getElementById('close-detail-button');
+    const closeVideoDetailButton = document.getElementById('close-video-detail-button'); // ID変更
 
+    // Video Detail Elements
     const detailTitle = document.getElementById('detail-title');
     const detailIframe = document.getElementById('detail-iframe');
     const detailAuthor = document.getElementById('detail-author');
     const detailViews = document.getElementById('detail-views');
     const detailDescription = document.getElementById('detail-description');
+
+    // Channel Detail Modal Elements
+    const channelDetailModal = document.getElementById('channel-detail-modal');
+    const closeChannelDetailButton = document.getElementById('close-channel-detail-button');
+    const channelModalName = document.getElementById('channel-modal-name');
+    const channelModalIcon = document.getElementById('channel-modal-icon');
+    const channelModalSubscribers = document.getElementById('channel-modal-subscribers');
+    const channelModalViews = document.getElementById('channel-modal-views');
+    const channelModalDescription = document.getElementById('channel-modal-description');
 
     // CORSに対応しているInvidiousインスタンスのURLを選択してください
     // 動作しない場合は、https://docs.invidious.io/instances/ でCORSが緑色のインスタンスを試してください。
@@ -22,18 +32,28 @@ document.addEventListener('DOMContentLoaded', () => {
             performSearch();
         }
     });
-    closeDetailButton.addEventListener('click', hideVideoDetail);
+    closeVideoDetailButton.addEventListener('click', hideVideoDetail);
+    closeChannelDetailButton.addEventListener('click', hideChannelDetail);
+    channelDetailModal.addEventListener('click', (event) => {
+        // モーダルの背景をクリックした場合に閉じる
+        if (event.target === channelDetailModal) {
+            hideChannelDetail();
+        }
+    });
+
 
     async function performSearch() {
         const query = searchInput.value.trim();
         if (!query) {
             resultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-600 text-lg py-12">検索キーワードを入力してください。</p>`;
             hideVideoDetail();
+            hideChannelDetail(); // チャンネル詳細も非表示に
             return;
         }
 
         resultsContainer.innerHTML = `<p class="col-span-full text-center text-gray-600 text-lg py-12">検索中...</p>`;
         hideVideoDetail(); // 検索時は動画詳細を非表示に
+        hideChannelDetail(); // チャンネル詳細も非表示に
 
         try {
             const response = await fetch(`${INVIDIOUS_INSTANCE_URL}/api/v1/search?q=${encodeURIComponent(query)}`);
@@ -49,32 +69,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            data.forEach(video => {
-                if (video.type === 'video') { // 'video'タイプのみを対象
+            data.forEach(item => {
+                if (item.type === 'video') { // 'video'タイプのみを対象
                     const videoCard = document.createElement('div');
                     videoCard.classList.add(
                         'bg-white', 'rounded-lg', 'shadow-md', 'overflow-hidden',
-                        'hover:shadow-lg', 'transform', 'hover:-translate-y-1', 'transition', 'duration-300',
-                        'cursor-pointer'
+                        'hover:shadow-lg', 'transform', 'hover:-translate-y-1', 'transition', 'duration-300'
                     );
                     
-                    const thumbnailUrl = video.videoThumbnails && video.videoThumbnails.length > 0
-                                        ? video.videoThumbnails[0].url
+                    const thumbnailUrl = item.videoThumbnails && item.videoThumbnails.length > 0
+                                        ? item.videoThumbnails[0].url
                                         : 'https://via.placeholder.com/320x180?text=No+Thumbnail';
+                    
+                    // チャンネルアイコンのURLを探す
+                    const channelIconUrl = item.authorThumbnails && item.authorThumbnails.length > 0
+                                           ? item.authorThumbnails[0].url
+                                           : 'https://via.placeholder.com/48x48?text=Channel'; // デフォルトアイコン
 
                     videoCard.innerHTML = `
-                        <img src="${thumbnailUrl}" alt="${video.title}" data-video-id="${video.videoId}"
-                             class="w-full h-48 object-cover">
+                        <img src="${thumbnailUrl}" alt="${item.title}" data-video-id="${item.videoId}"
+                             class="w-full h-48 object-cover cursor-pointer">
                         <div class="p-4">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2 truncate">${video.title}</h3>
-                            <p class="text-sm text-gray-600">${video.author}</p>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2 truncate">${item.title}</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <img src="${channelIconUrl}" alt="${item.author}" data-channel-id="${item.authorId}"
+                                     class="w-8 h-8 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-blue-400">
+                                <p class="text-sm text-gray-600">${item.author}</p>
+                            </div>
                         </div>
                     `;
                     resultsContainer.appendChild(videoCard);
 
-                    videoCard.querySelector('img').addEventListener('click', (event) => {
+                    // サムネイルクリックで動画詳細表示
+                    videoCard.querySelector('img[data-video-id]').addEventListener('click', (event) => {
                         const videoId = event.target.dataset.videoId;
                         fetchVideoDetails(videoId);
+                    });
+
+                    // チャンネルアイコンクリックでチャンネル詳細表示
+                    videoCard.querySelector('img[data-channel-id]').addEventListener('click', (event) => {
+                        const channelId = event.target.dataset.channelId;
+                        fetchChannelDetails(channelId);
                     });
                 }
             });
@@ -88,13 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function fetchVideoDetails(videoId) {
         // 詳細コンテナのコンテンツをクリアし、ローディング表示
         videoDetailContainer.innerHTML = `
-            <button id="close-detail-button"
+            <button id="close-video-detail-button"
                     class="absolute top-4 right-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300 text-sm">
                 閉じる
             </button>
             <p class="text-center text-gray-600 text-lg py-12">動画情報を読み込み中...</p>
         `;
         videoDetailContainer.classList.add('video-detail-visible'); // 詳細表示コンテナを表示
+        hideChannelDetail(); // チャンネル詳細が開いていたら閉じる
 
         // 検索結果コンテナを一時的に非表示に
         resultsContainer.style.display = 'none';
@@ -109,15 +145,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const viewCountFormatted = new Intl.NumberFormat('ja-JP').format(video.viewCount);
 
             // コンテンツを更新
-            detailTitle.textContent = video.title;
-            detailIframe.src = `${INVIDIOUS_INSTANCE_URL}/embed/${videoId}`;
-            detailAuthor.textContent = video.author;
-            detailViews.textContent = viewCountFormatted;
-            detailDescription.innerHTML = video.descriptionHtml || '説明はありません。'; // HTML形式で挿入
-
-            // 新しいコンテンツをセット
             videoDetailContainer.innerHTML = `
-                <button id="close-detail-button"
+                <button id="close-video-detail-button"
                         class="absolute top-4 right-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300 text-sm">
                     閉じる
                 </button>
@@ -143,24 +172,75 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             // クローズボタンにイベントリスナーを再設定
-            document.getElementById('close-detail-button').addEventListener('click', hideVideoDetail);
+            document.getElementById('close-video-detail-button').addEventListener('click', hideVideoDetail);
 
         } catch (error) {
             console.error('動画詳細の取得中にエラーが発生しました:', error);
             videoDetailContainer.innerHTML = `
-                <button id="close-detail-button"
+                <button id="close-video-detail-button"
                         class="absolute top-4 right-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300 text-sm">
                     閉じる
                 </button>
                 <p class="text-center text-red-500 text-lg py-12">動画詳細の取得中にエラーが発生しました。もう一度お試しください。</p>
             `;
-            document.getElementById('close-detail-button').addEventListener('click', hideVideoDetail);
+            document.getElementById('close-video-detail-button').addEventListener('click', hideVideoDetail);
+        }
+    }
+
+    async function fetchChannelDetails(channelId) {
+        // チャンネル詳細モーダルをローディング表示
+        channelModalName.textContent = 'チャンネル情報を読み込み中...';
+        channelModalIcon.src = 'https://via.placeholder.com/96x96?text=Loading';
+        channelModalSubscribers.textContent = '';
+        channelModalViews.textContent = '';
+        channelModalDescription.innerHTML = '';
+        channelDetailModal.classList.add('channel-detail-visible'); // モーダルを表示
+        channelDetailModal.classList.remove('channel-detail-hidden');
+
+        // 動画詳細と検索結果を一時的に非表示に
+        hideVideoDetail();
+        resultsContainer.style.display = 'none';
+
+
+        try {
+            const response = await fetch(`${INVIDIOUS_INSTANCE_URL}/api/v1/channels/${channelId}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const channel = await response.json();
+
+            const subscriberCountFormatted = channel.subCount ? new Intl.NumberFormat('ja-JP').format(channel.subCount) : '非公開';
+            const totalViewsFormatted = channel.viewCount ? new Intl.NumberFormat('ja-JP').format(channel.viewCount) : '非公開';
+
+            // チャンネルアイコンのURLを探す
+            const channelIcon = channel.authorThumbnails && channel.authorThumbnails.length > 0
+                               ? channel.authorThumbnails[0].url
+                               : 'https://via.placeholder.com/96x96?text=Channel'; // デフォルトアイコン
+
+            channelModalName.textContent = channel.author;
+            channelModalIcon.src = channelIcon;
+            channelModalSubscribers.textContent = subscriberCountFormatted;
+            channelModalViews.textContent = totalViewsFormatted;
+            channelModalDescription.innerHTML = channel.descriptionHtml || '説明はありません。';
+
+        } catch (error) {
+            console.error('チャンネル詳細の取得中にエラーが発生しました:', error);
+            channelModalName.textContent = 'エラー';
+            channelModalSubscribers.textContent = '';
+            channelModalViews.textContent = '';
+            channelModalDescription.innerHTML = '<p class="text-center text-red-500 text-lg py-4">チャンネル詳細の取得中にエラーが発生しました。</p>';
         }
     }
 
     function hideVideoDetail() {
         videoDetailContainer.classList.remove('video-detail-visible');
         videoDetailContainer.classList.add('video-detail-hidden');
+        resultsContainer.style.display = 'grid'; // 検索結果コンテナを再表示
+    }
+
+    function hideChannelDetail() {
+        channelDetailModal.classList.remove('channel-detail-visible');
+        channelDetailModal.classList.add('channel-detail-hidden');
         resultsContainer.style.display = 'grid'; // 検索結果コンテナを再表示
     }
 });

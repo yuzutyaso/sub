@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>簡易Invidiousブラウザ - 検索: {{ search_query }}</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 900px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; }
+        .video-card, .search-result {
+            display: flex;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            align-items: flex-start;
+        }
+        .video-card img, .search-result img {
+            width: 160px;
+            height: 90px;
+            margin-right: 15px;
+            border-radius: 3px;
+            object-fit: cover;
+        }
+        .video-info { flex-grow: 1; }
+        .video-info h3 { margin-top: 0; margin-bottom: 5px; color: #0056b3; }
+        .video-info p { margin: 0 0 3px 0; font-size: 0.9em; color: #555; }
+        .embed-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .no-data { color: #888; font-style: italic; }
+        .back-link { display: inline-block; margin-top: 20px; padding: 8px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; }
+        .back-link:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>簡易Invidiousブラウザ</h1>
+        <p><strong>使用しているInvidiousインスタンス:</strong> <a href="{{ invidious_instance }}" target="_blank">{{ invidious_instance }}</a></p>
+
+        <h2>単一動画情報</h2>
+        {% if video_data %}
+            <div class="video-card">
+                <img src="{{ video_data.get('videoThumbnails', [{}])[0].get('url', '') }}" alt="動画サムネイル">
+                <div class="video-info">
+                    <h3><a href="{{ invidious_instance }}/watch?v={{ video_data.get('videoId', '') }}" target="_blank">{{ video_data.get('title', 'タイトルなし') }}</a></h3>
+                    <p><strong>チャンネル:</strong> <a href="{{ invidious_instance }}/channel/{{ video_data.get('authorId', '') }}" target="_blank">{{ video_data.get('author', '不明') }}</a></p>
+                    <p><strong>再生回数:</strong> {{ "{:,.0f}".format(video_data.get('viewCount', 0)) }}</p>
+                    <p><strong>公開日:</strong> {{ video_data.get('publishedText', 'N/A') }}</p>
+                    <p><strong>長さ:</strong> {{ video_data.get('lengthSeconds', 'N/A') }}秒</p>
+                </div>
+            </div>
+            <h3>動画埋め込み</h3>
+            <div class="embed-container">
+                <iframe src="{{ embed_invidious_url }}" frameborder="0" allowfullscreen></iframe>
+            </div>
+        {% else %}
+            <p class="no-data">動画情報を取得できませんでした。</p>
+        {% endif %}
+
+        <h2>「{{ search_query }}」の検索結果</h2>
+        {% if search_results %}
+            {% for video in search_results %}
+                {% if video.get('type') == 'video' %}
+                    <div class="search-result">
+                        <a href="{{ invidious_instance }}/watch?v={{ video.get('videoId', '') }}" target="_blank">
+                            <img src="{{ video.get('videoThumbnails', [{}])[0].get('url', '') }}" alt="サムネイル">
+                        </a>
+                        <div class="video-info">
+                            <h3><a href="{{ invidious_instance }}/watch?v={{ video.get('videoId', '') }}" target="_blank">{{ video.get('title', 'タイトルなし') }}</a></h3>
+                            <p><strong>チャンネル:</strong> <a href="{{ invidious_instance }}/channel/{{ video.get('authorId', '') }}" target="_blank">{{ video.get('author', '不明') }}</a></p>
+                            <p><strong>再生回数:</strong> {{ "{:,.0f}".format(video.get('viewCount', 0)) }}</p>
+                            <p><strong>長さ:</strong> {{ video.get('lengthSeconds', 'N/A') }}秒</p>
+                        </div>
+                    </div>
+                {% elif video.get('type') == 'channel' %}
+                    <div class="search-result">
+                        <a href="{{ invidious_instance }}/channel/{{ video.get('channelId', '') }}" target="_blank">
+                            <img src="{{ video.get('authorThumbnails', [{}])[0].get('url', '') }}" alt="チャンネルアイコン" style="border-radius: 50%;">
+                        </a>
+                        <div class="video-info">
+                            <h3><a href="{{ invidious_instance }}/channel/{{ video.get('channelId', '') }}" target="_blank">{{ video.get('author', 'チャンネル名不明') }}</a></h3>
+                            <p><strong>タイプ:</strong> チャンネル</p>
+                            <p><strong>登録者数:</strong> {{ video.get('subCount', 'N/A') }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p class="no-data">検索結果がありませんでした。</p>
+        {% endif %}
+        <a href="/" class="back-link">新しい検索</a>
+    </div>
+</body>
+  </html>

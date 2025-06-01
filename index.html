@@ -28,15 +28,41 @@
         }
 
         /* Basic fade in/out for detail section */
-        .video-detail-hidden {
+        .video-detail-hidden, .channel-detail-hidden {
             display: none;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
-        .video-detail-visible {
+        .video-detail-visible, .channel-detail-visible {
             display: block;
             opacity: 1;
             transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Modal overlay styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
         }
     </style>
 </head>
@@ -58,7 +84,7 @@
     <main class="container mx-auto p-6 flex-grow">
         <section id="video-detail-container"
                  class="video-detail-hidden bg-white p-6 rounded-lg shadow-xl mb-8 relative">
-            <button id="close-detail-button"
+            <button id="close-video-detail-button"
                     class="absolute top-4 right-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300 text-sm">
                 閉じる
             </button>
@@ -95,6 +121,25 @@
     <footer class="bg-gray-800 text-white p-4 text-center mt-8">
         <p class="text-sm">&copy; 2025 Invidious YouTube Lite. Powered by Invidious API.</p>
     </footer>
+
+    <div id="channel-detail-modal" class="modal-overlay channel-detail-hidden">
+        <div class="modal-content">
+            <button id="close-channel-detail-button"
+                    class="absolute top-4 right-4 bg-gray-200 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-300 transition duration-300 text-sm">
+                閉じる
+            </button>
+            <h2 class="text-3xl font-bold text-gray-900 mb-4" id="channel-modal-name"></h2>
+            <div class="flex items-center gap-4 mb-4">
+                <img id="channel-modal-icon" class="w-24 h-24 rounded-full object-cover shadow-md" alt="Channel Icon">
+                <div>
+                    <p class="text-lg text-gray-700"><strong class="text-gray-900">チャンネル登録者数:</strong> <span id="channel-modal-subscribers"></span></p>
+                    <p class="text-lg text-gray-700"><strong class="text-gray-900">総再生回数:</strong> <span id="channel-modal-views"></span></p>
+                </div>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">説明:</h3>
+            <div id="channel-modal-description" class="description bg-gray-50 p-4 rounded-md border border-gray-200 max-h-60 overflow-y-auto text-gray-600 leading-relaxed"></div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

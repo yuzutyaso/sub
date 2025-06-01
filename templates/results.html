@@ -37,7 +37,7 @@
             margin-bottom: 20px;
             border-radius: 5px;
         }
-        .embed-container iframe {
+        .embed-container iframe, .embed-container video { /* videoタグもこのスタイルを適用 */
             position: absolute;
             top: 0;
             left: 0;
@@ -61,16 +61,30 @@
                 <img src="{{ video_data.get('videoThumbnails', [{}])[0].get('url', '') }}" alt="動画サムネイル">
                 <div class="video-info">
                     <h3><a href="{{ invidious_instance }}/watch?v={{ video_data.get('videoId', '') }}" target="_blank">{{ video_data.get('title', 'タイトルなし') }}</a></h3>
-                    <p><strong>チャンネル:</strong> <a href="{{ invidious_instance }}/channel/{{ video_data.get('authorId', '') }}" target="_blank">{{ video_data.get('author', '不明') }}</a></p>
+                    <p><strong>チャンネル:</strong> <a href="{{ invidious_instance }}/channel/{{ video_data.get('authorId', '') }}" target="_blank">{{ video_data.get('author', '不明')}</a></p>
                     <p><strong>再生回数:</strong> {{ "{:,.0f}".format(video_data.get('viewCount', 0)) }}</p>
                     <p><strong>公開日:</strong> {{ video_data.get('publishedText', 'N/A') }}</p>
                     <p><strong>長さ:</strong> {{ video_data.get('lengthSeconds', 'N/A') }}秒</p>
                 </div>
             </div>
-            <h3>動画埋め込み</h3>
+            
+            <h3>動画埋め込み (Invidious Embed)</h3>
             <div class="embed-container">
                 <iframe src="{{ embed_invidious_url }}" frameborder="0" allowfullscreen></iframe>
             </div>
+
+            {% if video_stream_url %}
+            <h3>動画埋め込み (直接ストリームURL)</h3>
+            <div class="embed-container">
+                <video controls width="100%" height="100%">
+                    <source src="{{ video_stream_url }}" type="video/mp4">
+                    お使いのブラウザは動画タグをサポートしていません。
+                </video>
+            </div>
+            {% else %}
+            <p class="no-data">直接再生可能な動画ストリームURLが見つかりませんでした。</p>
+            {% endif %}
+
         {% else %}
             <p class="no-data">動画情報を取得できませんでした。</p>
         {% endif %}
@@ -109,4 +123,4 @@
         <a href="/" class="back-link">新しい検索</a>
     </div>
 </body>
-  </html>
+</html>
